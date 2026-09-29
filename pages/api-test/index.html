@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API 请求测试</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">心理委员，我不得劲</p>
+          <h1>API 请求测试</h1>
+        </div>
+        <button class="button button-secondary" id="refresh-button" type="button">
+          刷新接口
+        </button>
+      </header>
+
+      <section class="test-panel" aria-label="接口测试设置">
+        <div class="field">
+          <label for="api-type">接口类型</label>
+          <select id="api-type">
+            <option value="json">JSON API</option>
+            <option value="image">图片 API</option>
+          </select>
+        </div>
+
+        <div class="field field-grow">
+          <label for="api-url">接口地址</label>
+          <select id="api-url"></select>
+        </div>
+
+        <div class="actions">
+          <button class="button button-primary" id="test-button" type="button">
+            测试当前接口
+          </button>
+          <button class="button button-secondary" id="test-all-button" type="button">
+            测试全部
+          </button>
+        </div>
+      </section>
+
+      <div class="status-line" id="status-line" role="status" aria-live="polite"></div>
+      <section class="results" id="results" aria-live="polite"></section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
