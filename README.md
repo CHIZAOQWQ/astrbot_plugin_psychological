@@ -1,6 +1,6 @@
-# astrbot_plugin_psychological_not_feeling_well
+# astrbot_plugin_psychological
 
-心理委员，我不得劲插件 - 为群成员提供随机3次元美女图片
+心理委员插件 - 为群成员提供随机3次元美女图片
 
 ## 功能说明
 
@@ -62,7 +62,7 @@
 
 本插件使用 AstrBot 内置的 `aiohttp` 库，无需额外安装依赖。
 
-## 使用的api
+## 使用的api（可根据自己需求进行更改）
 
 1. https://v2.xxapi.cn/api/
 
