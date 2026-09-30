@@ -1,0 +1,19 @@
+{
+  "json_api_list": {
+    "description": "JSON API 地址列表",
+    "hint": "接口需返回 JSON，并在 data 字段中提供图片 URL。可在列表中直接添加或删除地址。",
+    "type": "list",
+    "default": [
+      "https://v2.xxapi.cn/api/baisi",
+      "https://v2.xxapi.cn/api/heisi",
+      "https://v2.xxapi.cn/api/jk",
+      "https://v2.xxapi.cn/api/yscos"
+    ]
+  },
+  "image_api_list": {
+    "description": "图片 API 地址列表",
+    "hint": "接口可直接返回图片，或返回纯文本图片 URL。留空表示不使用此类接口。",
+    "type": "list",
+    "default": []
+  }
+}

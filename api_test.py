@@ -17,10 +17,7 @@ JSON_API_LIST = [
 ]
 
 # 直接返回图片的 API
-IMAGE_API_LIST = [
-    "https://api.lolimi.cn/API/tup/xjj.php",
-    "https://api.lolimi.cn/API/meizi/api.php?type=image",
-]
+IMAGE_API_LIST = []
 
 # 请求头
 HEADERS = {
@@ -186,4 +183,3 @@ async def run_tests():
 if __name__ == "__main__":
     exit_code = asyncio.run(run_tests())
     exit(exit_code)
-
