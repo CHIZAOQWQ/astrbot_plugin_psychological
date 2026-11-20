@@ -6,12 +6,15 @@ from astrbot.api.web import error_response, json_response, request
 import aiohttp
 import asyncio
 import base64
+import hashlib
+import json
 import random
 import time
+from urllib.parse import urlsplit
 
 
 PLUGIN_NAME = "astrbot_plugin_psychological_not_feeling_well"
-PLUGIN_VERSION = "1.2.0"
+PLUGIN_VERSION = "1.2.1"
 REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
@@ -27,6 +30,10 @@ DEFAULT_JSON_API_LIST = [
 
 # 直接返回图片的 API
 DEFAULT_IMAGE_API_LIST = []
+API_LIST_DEFAULTS = {
+    "json_api_list": DEFAULT_JSON_API_LIST,
+    "image_api_list": DEFAULT_IMAGE_API_LIST,
+}
 
 # 随机提示语列表
 WAITING_MESSAGES = [
@@ -41,7 +48,7 @@ WAITING_MESSAGES = [
 
 @register(
     PLUGIN_NAME,
-    "是迟早a",
+    "Darkness218",
     "心理委员，我不得劲插件，输入 /心理委员 获取随机3次元美女图片",
     PLUGIN_VERSION,
 )
@@ -60,6 +67,12 @@ class PsychologicalPlugin(Star):
             self.api_test_run,
             ["POST"],
             "Test a configured API",
+        )
+        context.register_web_api(
+            f"/{PLUGIN_NAME}/api-config/save",
+            self.api_config_save,
+            ["POST"],
+            "Save configured APIs",
         )
 
     async def initialize(self):
@@ -90,18 +103,80 @@ class PsychologicalPlugin(Star):
 
         return valid_urls
 
+    def _api_config_snapshot(self) -> dict:
+        lists = {
+            key: self._get_api_urls(key, default_urls)
+            for key, default_urls in API_LIST_DEFAULTS.items()
+        }
+        revision = hashlib.sha256(
+            json.dumps(lists, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        return {**lists, "revision": revision}
+
     async def api_test_list(self):
-        """返回测试页面可选择的已配置 API。"""
-        return json_response(
-            {
-                "json_api_list": self._get_api_urls(
-                    "json_api_list", DEFAULT_JSON_API_LIST
-                ),
-                "image_api_list": self._get_api_urls(
-                    "image_api_list", DEFAULT_IMAGE_API_LIST
-                ),
-            }
-        )
+        """返回 Pages 中可管理和测试的 API 配置。"""
+        return json_response(self._api_config_snapshot())
+
+    async def api_config_save(self):
+        """校验两类地址，并保存至插件设置使用的同一份配置。"""
+        payload = await request.json(default={})
+        if not isinstance(payload, dict):
+            return error_response("请求数据必须是 JSON 对象", status_code=400)
+
+        updated = {}
+        for key in API_LIST_DEFAULTS:
+            urls = payload.get(key)
+            if not isinstance(urls, list):
+                return error_response(f"{key} 必须是列表", status_code=400)
+            label = "JSON API" if key == "json_api_list" else "图片 API"
+            valid_urls = []
+            for index, value in enumerate(urls, start=1):
+                url = value.strip() if isinstance(value, str) else ""
+                if not self._is_valid_config_url(url):
+                    return error_response(
+                        f"{label} 第 {index} 项不是有效的 HTTP/HTTPS 地址",
+                        status_code=400,
+                    )
+                if url in valid_urls:
+                    return error_response(
+                        f"{label} 第 {index} 项与已有地址重复", status_code=400
+                    )
+                valid_urls.append(url)
+            updated[key] = valid_urls
+
+        if payload.get("revision") != self._api_config_snapshot()["revision"]:
+            return error_response(
+                "接口配置已变更，请放弃当前更改并重新加载后再编辑", status_code=409
+            )
+
+        missing = object()
+        previous = {key: self.config.get(key, missing) for key in updated}
+        try:
+            self.config.update(updated)
+            self.config.save_config()
+        except Exception:
+            for key, value in previous.items():
+                if value is missing:
+                    self.config.pop(key, None)
+                else:
+                    self.config[key] = value
+            logger.exception("保存心理委员插件的 API 配置失败")
+            return error_response("保存 API 配置失败，请查看 AstrBot 日志", status_code=500)
+
+        return json_response(self._api_config_snapshot())
+
+    @classmethod
+    def _is_valid_config_url(cls, url: str) -> bool:
+        if not cls._is_http_url(url) or any(
+            char.isspace() or ord(char) < 32 or ord(char) == 127 or char == "\\"
+            for char in url
+        ):
+            return False
+        try:
+            parsed = urlsplit(url)
+            return bool(parsed.hostname) and (parsed.port is None or parsed.port > 0)
+        except ValueError:
+            return False
 
     async def api_test_run(self):
         """请求指定 API，并返回可供测试页面预览的结果。"""

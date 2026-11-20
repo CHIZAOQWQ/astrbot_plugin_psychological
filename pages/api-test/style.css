@@ -54,9 +54,26 @@ body {
   line-height: 1.5;
 }
 
+input,
 button,
 select {
   font: inherit;
+}
+
+input[type="url"] {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+}
+
+input[type="url"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .page-shell {
@@ -185,6 +202,96 @@ select:focus {
   color: var(--text-muted);
 }
 
+.management-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.management-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.management-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.management-form {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.management-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.management-list-heading {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.management-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: var(--surface-soft);
+  border-radius: 6px;
+}
+
+.management-item-url {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+.management-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.management-empty {
+  padding: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.button-danger {
+  color: var(--danger);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.button-danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+
+.status-line[data-tone="error"] {
+  color: var(--danger);
+}
+
+.status-line[data-tone="success"] {
+  color: var(--success);
+}
+
 .results {
   display: grid;
   gap: 12px;
@@ -309,7 +416,8 @@ select:focus {
     padding: 16px;
   }
 
-  .test-panel {
+  .test-panel,
+  .management-form {
     grid-template-columns: 1fr;
   }
 
@@ -334,7 +442,13 @@ select:focus {
   }
 
   .actions,
-  .metadata {
+  .metadata,
+  .management-item {
     grid-template-columns: 1fr;
+  }
+
+  .management-heading,
+  .management-item-actions {
+    flex-wrap: wrap;
   }
 }
